@@ -9,9 +9,5 @@ func GetFlag() bool {
 	flag.BoolVar(&envFlag, "f", false, "Path")
 	flag.Parse()
 
-	if !envFlag {
-		return false
-	} else {
-		return true
-	}
+	return envFlag
 }

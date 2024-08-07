@@ -14,29 +14,34 @@ func OnlyDir(path, prefix string) {
 		log.Fatalf("Error: %v", err)
 	}
 
-	for i, entry := range entries {
-		enLast := i == len(entries)-1
-		if entry.IsDir() {
-			func(entry fs.DirEntry, prefix string, enLast bool) {
-				line := prefix
-				if enLast {
-					line += "└───"
-				} else {
-					line += "├───"
-				}
-
-				line += entry.Name()
-				fmt.Println(line)
-			}(entry, prefix, enLast)
-			newPrefix := prefix
-			if enLast {
-				newPrefix += "    "
-			} else {
-				newPrefix += "│   "
-			}
-			subDir := filepath.Join(path, entry.Name())
-			OnlyDir(subDir, newPrefix)
+	var dirs []fs.DirEntry
+	for _, entry := range entries {
+		if entry.Name() != ".DS_Store" && entry.IsDir() {
+			dirs = append(dirs, entry)
 		}
+	}
+
+	for i, entry := range dirs {
+		enLast := i == len(dirs)-1
+		func(entry fs.DirEntry, prefix string, enLast bool) {
+			line := prefix
+			if enLast {
+				line += "└───"
+			} else {
+				line += "├───"
+			}
+
+			line += entry.Name()
+			fmt.Println(line)
+		}(entry, prefix, enLast)
+		newPrefix := prefix
+		if enLast {
+			newPrefix += "    "
+		} else {
+			newPrefix += "│   "
+		}
+		subDir := filepath.Join(path, entry.Name())
+		OnlyDir(subDir, newPrefix)
 	}
 }
 
@@ -47,8 +52,11 @@ func DirsAndFiles(path, prefix string) {
 	}
 
 	for i, entry := range entries {
+		if entry.Name() == ".DS_Store" {
+			continue
+		}
 		enLast := i == len(entries)-1
-		func(path string, entry fs.DirEntry, prefix string, enLast bool) {
+		func(entry fs.DirEntry, prefix string, enLast bool) {
 			line := prefix
 			if enLast {
 				line += "└───"
@@ -70,7 +78,7 @@ func DirsAndFiles(path, prefix string) {
 				}
 			}
 			fmt.Println(line)
-		}(path, entry, prefix, enLast)
+		}(entry, prefix, enLast)
 		if entry.IsDir() {
 			newPrefix := prefix
 			if enLast {
