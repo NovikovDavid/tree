@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -23,17 +22,7 @@ func OnlyDir(path, prefix string) {
 
 	for i, entry := range dirs {
 		enLast := i == len(dirs)-1
-		func(entry fs.DirEntry, prefix string, enLast bool) {
-			line := prefix
-			if enLast {
-				line += "└───"
-			} else {
-				line += "├───"
-			}
-
-			line += entry.Name()
-			fmt.Println(line)
-		}(entry, prefix, enLast)
+		BuildingOnlyDir(entry, prefix, enLast)
 		newPrefix := prefix
 		if enLast {
 			newPrefix += "    "
@@ -56,29 +45,7 @@ func DirsAndFiles(path, prefix string) {
 			continue
 		}
 		enLast := i == len(entries)-1
-		func(entry fs.DirEntry, prefix string, enLast bool) {
-			line := prefix
-			if enLast {
-				line += "└───"
-			} else {
-				line += "├───"
-			}
-
-			line += entry.Name()
-			if !entry.IsDir() {
-				info, err := entry.Info()
-				if err == nil {
-					if info.Size() == 0 {
-						line += " (empty)"
-					} else {
-						line += fmt.Sprintf(" (%d)", info.Size())
-					}
-				} else {
-					line += " (unknown size)"
-				}
-			}
-			fmt.Println(line)
-		}(entry, prefix, enLast)
+		BuildingDirsAndFiles(entry, prefix, enLast)
 		if entry.IsDir() {
 			newPrefix := prefix
 			if enLast {
